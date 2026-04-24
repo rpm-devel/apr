@@ -5,8 +5,8 @@
 
 Summary: Apache Portable Runtime library
 Name: apr
-Version: 1.6.2
-Release: 3%{?dist}
+Version: 1.7.6
+Release: 1%{?dist}
 # ASL 2.0: everything
 # ISC: network_io/apr-1.4.6/network_io/unix/inet_?to?.c
 # BSD with advertising: strings/apr_snprintf.c, strings/apr_fnmatch.c,
@@ -14,17 +14,18 @@ Release: 3%{?dist}
 #                   file_io/unix/mktemp.c, strings/apr_strings.c
 # BSD (3-clause): strings/apr_strnatcmp.c, include/apr_strings.h
 License: ASL 2.0 and BSD with advertising and ISC and BSD
-Group: System Environment/Libraries
 URL: http://apr.apache.org/
-Source0: http://www.apache.org/dist/apr/%{name}-%{version}.tar.bz2
+Source0: https://downloads.apache.org/apr/%{name}-%{version}.tar.bz2
 Source1: apr-wrapper.h
 Patch2: apr-1.2.2-locktimeout.patch
 Patch3: apr-1.2.2-libdir.patch
 Patch4: apr-1.2.7-pkgconf.patch
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-BuildRequires: autoconf, libtool, libuuid-devel, python
+BuildRequires: autoconf, libtool, libuuid-devel, python3
+BuildRequires: gcc
+BuildRequires: make
 # To enable SCTP support
 BuildRequires: lksctp-tools-devel
+Obsoletes: apr < %{version}-%{release}
 
 %description
 The mission of the Apache Portable Runtime (APR) is to provide a
@@ -33,10 +34,10 @@ portability layer to as many operating systems as possible,
 including Unices, MS Win32, BeOS and OS/2.
 
 %package devel
-Group: Development/Libraries
 Summary: APR library development kit
 Conflicts: subversion-devel < 0.20.1-2
 Requires: apr = %{version}-%{release}, pkgconfig
+Obsoletes: apr-devel < %{version}-%{release}
 
 %description devel
 This package provides the support files which can be used to 
@@ -101,20 +102,15 @@ if grep 'define SIZEOF_VOIDP 4' include/apr.h \
   exit 1
 fi
 
-%clean
-rm -rf $RPM_BUILD_ROOT
-
 %post -p /sbin/ldconfig
 
 %postun -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root,-)
 %doc CHANGES LICENSE NOTICE
 %{_libdir}/libapr-%{aprver}.so.*
 
 %files devel
-%defattr(-,root,root,-)
 %doc docs/APRDesign.html docs/canonical_filenames.html
 %doc docs/incomplete_types docs/non_apr_programs
 %{_bindir}/apr-%{aprver}-config
@@ -129,6 +125,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/aclocal/*.m4
 
 %changelog
+* Fri Apr 24 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 1.7.6-1
+- Update to 1.7.6
+- Modernize spec for EL10
+
 * Wed Aug 02 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.6.2-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
 
