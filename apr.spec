@@ -1,7 +1,7 @@
-%define aprver 1
+%global aprver 1
 
 # Arches on which the multilib apr.h hack is needed:
-%define multilib_arches %{ix86} ia64 ppc ppc64 s390 s390x x86_64
+%global multilib_arches %{ix86} ia64 ppc ppc64 s390 s390x x86_64
 
 Summary: Apache Portable Runtime library
 Name: apr
@@ -66,31 +66,31 @@ export ac_cv_search_shm_open=no
 make %{?_smp_mflags}
 
 %install
-rm -rf $RPM_BUILD_ROOT
-make install DESTDIR=$RPM_BUILD_ROOT
+rm -rf %{buildroot}
+make install DESTDIR=%{buildroot}
 
-mkdir -p $RPM_BUILD_ROOT/%{_datadir}/aclocal
-install -m 644 build/find_apr.m4 $RPM_BUILD_ROOT/%{_datadir}/aclocal
+mkdir -p %{buildroot}/%{_datadir}/aclocal
+install -m 644 build/find_apr.m4 %{buildroot}/%{_datadir}/aclocal
 
 # Trim exported dependecies
 sed -ri '/^dependency_libs/{s,-l(uuid|crypt) ,,g}' \
-      $RPM_BUILD_ROOT%{_libdir}/libapr*.la
+      %{buildroot}%{_libdir}/libapr*.la
 sed -ri '/^LIBS=/{s,-l(uuid|crypt) ,,g;s/  */ /g}' \
-      $RPM_BUILD_ROOT%{_bindir}/apr-%{aprver}-config
+      %{buildroot}%{_bindir}/apr-%{aprver}-config
 sed -ri '/^Libs/{s,-l(uuid|crypt) ,,g}' \
-      $RPM_BUILD_ROOT%{_libdir}/pkgconfig/apr-%{aprver}.pc
+      %{buildroot}%{_libdir}/pkgconfig/apr-%{aprver}.pc
 
 %ifarch %{multilib_arches}
 # Ugly hack to allow parallel installation of 32-bit and 64-bit apr-devel 
 # packages:
-mv $RPM_BUILD_ROOT%{_includedir}/apr-%{aprver}/apr.h \
-   $RPM_BUILD_ROOT%{_includedir}/apr-%{aprver}/apr-%{_arch}.h
-install -c -m644 %{SOURCE1} $RPM_BUILD_ROOT%{_includedir}/apr-%{aprver}/apr.h
+mv %{buildroot}%{_includedir}/apr-%{aprver}/apr.h \
+   %{buildroot}%{_includedir}/apr-%{aprver}/apr-%{_arch}.h
+install -c -m644 %{SOURCE1} %{buildroot}%{_includedir}/apr-%{aprver}/apr.h
 %endif
 
 # Unpackaged files:
-rm -f $RPM_BUILD_ROOT%{_libdir}/apr.exp \
-      $RPM_BUILD_ROOT%{_libdir}/libapr-*.a
+rm -f %{buildroot}%{_libdir}/apr.exp \
+      %{buildroot}%{_libdir}/libapr-*.a
 
 %check
 # Fail if LFS support isn't present in a 32-bit build, since this
@@ -125,6 +125,9 @@ fi
 %{_datadir}/aclocal/*.m4
 
 %changelog
+* Fri May 22 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 1.7.6-1
+- Fix spec violations: %global for constants, use %{buildroot}
+
 * Fri Apr 24 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 1.7.6-1
 - Update to 1.7.6
 - Modernize spec for EL10
